@@ -48,7 +48,7 @@ sub poe__start {
 
     $kernel->alias_set('httpd');
 
-    POE::Component::Server::HTTPD->new(
+    POE::Component::Server::HTTP->new(
         Port           => $self->port,
         ContentHandler => {
             '/' => sub {
