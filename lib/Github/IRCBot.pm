@@ -1,8 +1,48 @@
 package Github::IRCBot;
-use strict;
-use warnings;
+use Moose;
 
 our $VERSION = '0.01';
+
+use POE;
+use Github::IRCBot::IRC;
+use Github::IRCBot::HTTPD;
+
+has config => (
+    is      => 'rw',
+    isa     => 'HashRef',
+    default => sub { {} },
+);
+
+has irc => (
+    is      => 'rw',
+    isa     => 'Github::IRCBot::IRC',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        Github::IRCBot::IRC->new( $self->config->{irc} );
+    },
+);
+
+has httpd => (
+    is      => 'rw',
+    isa     => 'Github::IRCBot::HTTPD',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        Github::IRCBot::HTTPD->new( $self->config->{httpd} );
+    },
+);
+
+no Moose;
+
+sub run {
+    my $self = shift;
+
+    $self->irc->spawn;
+    $self->httpd->spawn;
+
+    POE::Kernel->run;
+}
 
 =head1 NAME
 
@@ -35,4 +75,4 @@ LICENSE file included with this module.
 
 =cut
 
-1;
+__PACKAGE__->meta->make_immutable;

@@ -1,0 +1,9 @@
+httpd:
+  port: 3000
+
+irc:
+  server: chat.freenode.net
+  port: 6667
+  nick: gitbot
+  channels:
+    - #kamaitachi
