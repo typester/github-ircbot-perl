@@ -61,7 +61,7 @@ sub poe__start {
 
                 for my $commit (@{ $info->{commits} || [] }) {
                     $kernel->post( irc => say => $channel =>
-                                       "commit: ($commit->{author}{name}) $commit->{message} $commit->{url}" );
+                                       "commit: (03$commit->{author}{name}) $commit->{message} - 14$commit->{url}" );
                 }
             },
         },

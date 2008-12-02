@@ -99,7 +99,7 @@ sub poe__default {
 
 sub poe_say {
     my ($self, $kernel, $session, $channel, $message) = @_[OBJECT, KERNEL, SESSION, ARG0, ARG1];
-    $self->component->yield( privmsg => $channel => $message );
+    $self->component->yield( notice => $channel => $message );
 }
 
 __PACKAGE__->meta->make_immutable;
