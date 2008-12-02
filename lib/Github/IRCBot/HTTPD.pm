@@ -2,6 +2,7 @@ package Github::IRCBot::HTTPD;
 use Moose;
 
 use POE qw/Component::Server::HTTP/;
+use CGI::Simple;
 use JSON::XS ();
 
 has port => (
@@ -36,6 +37,7 @@ has json => (
     isa     => 'JSON::XS',
     lazy    => 1,
     default => sub { JSON::XS->new->latin1 },
+    handles => [qw/decode/],
 );
 
 sub spawn {
@@ -52,8 +54,15 @@ sub poe__start {
         Port           => $self->port,
         ContentHandler => {
             '/' => sub {
-                my ($request, $response) = @_;
-                
+                my ($req, $res) = @_;
+                my $p = CGI::Simple->new( $req->content );
+                my $channel = '#' . $p->param('name');
+                my $info    = $self->decode( $p->param('payload') );
+
+                for my $commit (@{ $info->{commits} || [] }) {
+                    $kernel->post( irc => say => $channel =>
+                                       "commit: ($commit->{author}{name}) $commit->{message} $commit->{url}" );
+                }
             },
         },
     );
