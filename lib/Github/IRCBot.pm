@@ -29,7 +29,9 @@ has httpd => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        Github::IRCBot::HTTPD->new( $self->config->{httpd} );
+        my $settings = $self->config->{httpd};
+        $settings->{irc} = $self->irc;
+        Github::IRCBot::HTTPD->new($settings);
     },
 );
 
