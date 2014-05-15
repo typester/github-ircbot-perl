@@ -11,6 +11,11 @@ has port => (
     default => sub { 3000 },
 );
 
+has irc => (
+    is      => 'rw',
+    isa     => 'Github::IRCBot::IRC'
+);
+
 has session => (
     is      => 'rw',
     isa     => 'POE::Session',
@@ -40,6 +45,7 @@ has json => (
     handles => [qw/decode/],
 );
 
+
 sub spawn {
     my $self = shift;
     $self->session;
@@ -56,12 +62,15 @@ sub poe__start {
             '/' => sub {
                 my ($req, $res) = @_;
                 my $p = CGI::Simple->new( $req->content );
-                my $channel = '#' . $p->param('name');
                 my $info    = $self->decode( $p->param('payload') );
+                my $channels = $self->irc->channels;
 
                 for my $commit (@{ $info->{commits} || [] }) {
-                    $kernel->post( irc => say => $channel =>
-                                       "commit: (03$commit->{author}{name}) $commit->{message} - 14$commit->{url}" );
+                    for(@$channels){
+                        $kernel->post( irc => say => $_ =>
+                            "commit: (03$commit->{author}{name}) ".
+                            "$commit->{message} - 14$commit->{url}" );
+                    }
                 }
             },
         },
